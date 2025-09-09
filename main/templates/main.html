@@ -1,0 +1,14 @@
+<!doctype html>
+<html>
+  <head><title>Football Shop</title></head>
+  <body>
+    <h1>Football News</h1>
+    <br>
+    {% for p in products %}
+      <h3>{{ p.name }} (Rp {{ p.price }})</h3>
+      <img src="{{ p.thumbnail }}" width="200">
+      <h4>Category: {{ p.category }}</h4>
+      <p>{{ p.description }}</p>
+      <hr>
+    {% endfor %}
+</html>
