@@ -1,0 +1,1 @@
+web: gunicorn eshop_pbp.wsgi
