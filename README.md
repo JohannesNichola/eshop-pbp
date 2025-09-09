@@ -2,7 +2,7 @@
 
 ## Tautan Deploy PWS
 Aplikasi sudah di-deploy di PWS, dapat diakses melalui:  
-[https://johannes-nichola-eshoppbp.pbp.cs.ui.ac.id](https://johannes-nichola-eshoppbp.pbp.cs.ui.ac.id)
+[https://johannes-nichola-eshoppbp.pbp.cs.ui.ac.id/]
 
 ---
 
