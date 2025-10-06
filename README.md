@@ -6,7 +6,7 @@ Aplikasi sudah di-deploy di PWS, dapat diakses melalui:
 
 ---
 
-## TUGAS 1
+## TUGAS 2
 ## Implementasi Checklist Step-by-Step
 
 1. **Step-by-step membuat proyek Django baru**
@@ -61,7 +61,7 @@ Aplikasi sudah di-deploy di PWS, dapat diakses melalui:
 6. **Feedback untuk asisten dosen**
     Bagi saya, apa yang disampaikan dan dijelaskan asisten dosen sudah cukup baik. Ketika ada pertanyaan pun asisten dosen dapat dengan baik menjelaskan dan asisten dosen juga tidak asal menjawab jika belum mengerti. Saya rasa, performa asisten dosen sudah cukup baik.
 
-## TUGAS 1
+## TUGAS 3
 ## Implementasi Checklist Step-by-Step
 
 1. **Data Delivery diperlukan dalam Pengimplementasian Sebuah Platfom**
@@ -91,3 +91,29 @@ Aplikasi sudah di-deploy di PWS, dapat diakses melalui:
 ## Screenshot hasil akses URL pada Postman
 ![alt text](images/xml.png)
 ![alt text](images/json.png)
+
+## TUGAS 4
+## Implementasi Checklist Step-by-Step
+
+1. **Apa itu AuthenticationForm?**
+    AuthenticationForm pada Django adalah form bawaan Django yang digunakan untuk proses login dengan melakukan validasi melalui pemeriksaan username dan password terhadap autentikasi. Kelebihannya, karena merupakan form bawaan, AuthenticationForm ini siap pakai tanpa menulis ulang logicnya, terintegrasi dengan autentikasi Django, dan tentunya aman. Namun, AuthenticationForm kurang fleksibel. JIka ingin custom layoutnya, diperlukan override. Selain itu, perlu memanggil request jika diperlukan.
+
+2. **Perbedaan autentikasi dan otorisasi, serta cara Django mengimplementasikannya**
+
+    Autentikasi artinya sistem memastikan identitas pengguna seperti login yang akan memastikan username dan password pengguna. Di sisi lain, otorisasi artinya sistem menentukan apa saja yang bisa dilakukan (function apa saja yang bisa digunakan) oleh pengguna. Django mengimplementasikan kedua hal tersebut dengan syntax berbeda. Untuk autentikasi contohnya import authenticate, login, logout dari django.contrib.auth. Sedangkan untuk otorisasi meski belum dipelajari, contoh sederhananya saja dengan menambahkan function permission() dan sejenisnya yang akan menentukan apa saja function yang dapat dijalankan pada akun pengguna.
+
+3. **Kelebihan dan Kekurangan Session dan Cookies dalam menyimpan state** 
+    Session :
+        Karena server yang menyimpan data session dan browser hanya menyimpan session id, maka data jadi lebih aman karena data sensitif tidak ada di browser, namun jadi diperlukan storage server.
+    Cookies :
+        Karena state disimpan di browser dan dikirim ke server setiap request, maka prosesnya menjadi lebih mudan dan cepat karena dilakukan tanpa storage server, namun jadi rentan terhadap pemindahtanganan dan manipulasi jika tidak Secure dan tanpa enkripsi.
+
+4. **Apakah penggunaan cookies aman secara default? Risiko & bagaimana Django menanganinya**
+    Penggunaan cookies secara default tidak otomatis aman. Cookies default dapat diread/write oleh klien kecuali diatur flags. Contoh risikonya adalah CSRF yaitu aksi yang dilakukan tanpa izin. Django dapat menangani/memitigasinya dengan penambahan middleware CSRF, dalam project ini contohnya ada di settings.py dengan code 'django.middleware.csrf.CsrfViewMiddleware' yang secara langsung mengaktifkan proteksi CSRF di Django.
+
+5. **Step-by-step melanjutkan proyek Django**
+    1. Menambahkan fitur register, login, dan logout, dengan cara membuat fungsinya (register(request), login_user(request), dan logout_user(request)) di views.py. Kemudian, tambahkan html register.html, dan login.html, serta tombol logout di main.html. Tambahkan juga path ketiganya di urls.py.
+    2. Membatasi akses dengan login_required dengan import decorator (@login_required) dan menambahkan decoratornya di atas fungsi show_main dan show_products.
+    3. Menyimpan dan menampilkan data last_login menggunakan cookies dengan import datetime, HttpResponseRedirect dan reverse. Kemudian, ketika login berhasil, maka cookie akan ditambahkan dengan last_login adalah waktu saat terakhir kali login. Ketika logout, cookie akan dihapus dengan code response.delete_cookie('last_login')
+    4. Menghubungkan model dengan user dengan import User di models.py dan menambahkan field user di model (user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)). Kemudian, dilakukan beberapa modifikasi code untuk fungsi create_products dan filter produk berdasarkan user di show_main beserta tombol filternya di main.html.
+    5. Terakhir, menampilkan Author di halaman detail dengan penambahan code di products_detail.html.
