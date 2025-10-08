@@ -1,28 +1,98 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block meta %}
+<title>{{ products.name }} - Offside!</title>
+{% endblock meta %}
+
 {% block content %}
+<div class="bg-gradient-to-b from-[#0a0a0f] to-[#1a001f] w-full min-h-screen text-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-6xl mx-auto">
 
-<p><a href="{% url 'main:show_main' %}"><button>← Back to Products List</button></a></p>
+        <!-- Back Navigation -->
+        <div class="mb-8">
+            <a href="{% url 'main:show_main' %}" 
+               class="text-purple-400 hover:text-purple-300 font-medium transition-all duration-300">
+                ← Back to Products
+            </a>
+        </div>
 
-<h1>{{ products.name }}</h1>
+        <!-- Product Card -->
+        <article class="backdrop-blur-xl bg-white/5 border border-purple-600/30 rounded-2xl shadow-[0_0_30px_rgba(168,85,247,0.2)] overflow-hidden">
 
-<p>
-  <b>Kategori:</b> {{ products.category }} 
-  {% if products.is_featured %} | <b>Featured</b>{% endif %}
-  | <b>Views:</b> {{ products.products_views }}
-  | <b>Price:</b> Rp {{ products.price }}
-</p>
+            <!-- Header -->
+            <div class="p-8 border-b border-purple-600/20">
+                <div class="flex flex-wrap items-center gap-3 mb-4">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-purple-600 text-white shadow-[0_0_10px_rgba(168,85,247,0.6)]">
+                        {{ products.category }}
+                    </span>
+                    {% if products.is_featured %}
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-yellow-500/20 text-yellow-300 border border-yellow-400/30">
+                            ★ Featured
+                        </span>
+                    {% endif %}
+                </div>
 
-{% if products.thumbnail %}
-  <img src="{{ products.thumbnail }}" alt="Products thumbnail" width="300">
-  <br /><br />
-{% endif %}
+                <h1 class="text-4xl font-extrabold text-purple-300 drop-shadow-md mb-3 leading-tight">
+                    {{ products.name }}
+                </h1>
 
-<p>{{ products.description }}</p>
+                <div class="flex flex-wrap items-center text-sm text-gray-400 gap-5">
+                    <span class="font-semibold text-purple-400">Rp {{ products.price }}</span>
+                    <span class="text-gray-500">{{ products.products_views }} views</span>
+                </div>
+            </div>
 
-{% if products.user %}
-  <p><b>Author:</b> {{ products.user.username }}</p>
-{% else %}
-  <p><b>Author:</b> Anonymous</p>
-{% endif %}
+            <!-- Product Image -->
+            {% if products.thumbnail %}
+                <div class="px-8 py-6">
+                    <img src="{{ products.thumbnail }}" 
+                         alt="{{ products.name }}" 
+                         class="w-full h-72 sm:h-96 object-cover rounded-xl border border-purple-600/20 shadow-[0_0_25px_rgba(168,85,247,0.15)]">
+                </div>
+            {% else %}
+                <div class="px-8 py-6">
+                    <img src="{% static 'image/no-products.png' %}" 
+                         alt="No image available" 
+                         class="w-full h-72 sm:h-96 object-cover rounded-xl opacity-70 border border-purple-600/20">
+                </div>
+            {% endif %}
 
+            <!-- Description -->
+            <div class="px-8 pb-10">
+                <h2 class="text-lg font-semibold text-purple-400 mb-3">Description</h2>
+                <div class="text-gray-300 leading-relaxed whitespace-pre-line text-base sm:text-lg">
+                    {{ products.description }}
+                </div>
+            </div>
+
+            <!-- Author / Seller Info -->
+            <div class="border-t border-purple-600/20 bg-white/5 px-8 py-6 rounded-b-2xl flex items-center justify-between">
+                <div>
+                    <p class="font-semibold text-purple-300">
+                        {% if products.user %}
+                            Seller: {{ products.user.username }}
+                        {% else %}
+                            Seller: Anonymous
+                        {% endif %}
+                    </p>
+                    <p class="text-sm text-gray-500">Products owner</p>
+                </div>
+
+                {% if user.is_authenticated and products.user == user %}
+                    <div class="flex gap-4">
+                        <a href="{% url 'main:edit_products' products.id %}" 
+                           class="text-purple-400 hover:text-purple-300 font-medium text-sm transition-all">
+                            ✎ Edit
+                        </a>
+                        <a href="{% url 'main:delete_products' products.id %}" 
+                           class="text-red-400 hover:text-red-300 font-medium text-sm transition-all">
+                            🗑 Delete
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </article>
+    </div>
+</div>
 {% endblock content %}

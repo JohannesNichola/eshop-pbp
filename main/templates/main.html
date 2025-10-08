@@ -1,56 +1,82 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block meta %}
+<title>Offside - Products</title>
+{% endblock meta %}
+
 {% block content %}
- 
-<h1>{{ app }}</h1>
 
-<h5>Name:</h5>
-<p>{{ name }}</p>
+<div class="bg-gradient-to-b from-[#0a0a0f] to-[#1a001f] w-full pt-16 min-h-screen text-gray-100">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10 py-10">
 
-<h5>Class:</h5>
-<p>{{ class }}</p>
-
-<a href="{% url 'main:create_products' %}" class="btn">+ Add Products</a>
-
-<a href="{% url 'main:logout' %}">
-  <button>Logout</button>
-</a>
-
-<h5>Sesi terakhir login: {{ last_login }}</h5>
-
-<hr>
-
-<a href="?filter=all">
-  <button type="button">All Products</button>
-</a>
-<a href="?filter=my">
-  <button type="button">My Products</button>
-</a> 
-
-{% if not products_list %}
-  <p>Belum ada data produk dari Offside!.</p>
-{% else %}
-  {% for products in products_list %}
-    <div>
-      <h2><a href="{% url 'main:show_products' products.id %}">{{ products.name }}</a></h2>
-
-      <p>
-        <b>{{ products.category }}</b> 
-        {% if products.is_featured %} | <b>Featured</b>{% endif %} 
-        | <b>Views:</b> {{ products.products_views }}
-        | <b>Price:</b> Rp {{ products.price }}
+    <!-- Header Section -->
+    <div class="mb-10 text-center px-4">
+      <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-purple-400 drop-shadow-lg mb-3">
+        ⚡ Explore Offside Products
+      </h1>
+      <p class="text-gray-400 text-base sm:text-lg">
+        Discover and manage football-inspired merchandise in style
       </p>
-
-      {% if products.thumbnail %}
-        <img src="{{ products.thumbnail }}" alt="thumbnail" width="150" height="100">
-        <br />
-      {% endif %}
-
-      <p>{{ products.description|truncatewords:25 }}...</p>
-
-      <p><a href="{% url 'main:show_products' products.id %}"><button>Detail</button></a></p>
     </div>
-    <hr>
-  {% endfor %}
-{% endif %}
 
+    <!-- Filter Section -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-10 
+                backdrop-blur-lg bg-white/5 border border-purple-600/20 rounded-xl p-5 shadow-lg">
+      <div class="flex flex-wrap justify-center sm:justify-start space-x-3 mb-4 sm:mb-0">
+        <a href="?" 
+           class="{% if request.GET.filter == 'all' or not request.GET.filter  %} 
+                    bg-purple-600 text-white shadow-[0_0_15px_rgba(168,85,247,0.6)] 
+                  {% else %}
+                    bg-transparent text-gray-300 border border-purple-500/30
+                  {% endif %} 
+                  px-5 py-2 rounded-lg font-medium transition-all duration-300 
+                  hover:bg-purple-500 hover:text-white hover:shadow-[0_0_20px_rgba(168,85,247,0.7)]">
+          All Products
+        </a>
+        <a href="?filter=my" 
+           class="{% if request.GET.filter == 'my' %} 
+                    bg-purple-600 text-white shadow-[0_0_15px_rgba(168,85,247,0.6)] 
+                  {% else %}
+                    bg-transparent text-gray-300 border border-purple-500/30
+                  {% endif %}
+                  px-5 py-2 rounded-lg font-medium transition-all duration-300 
+                  hover:bg-purple-500 hover:text-white hover:shadow-[0_0_20px_rgba(168,85,247,0.7)]">
+          My Products
+        </a>
+      </div>
+      {% if user.is_authenticated %}
+        <div class="text-sm text-gray-400 italic text-center sm:text-right">
+          Last login: <span class="text-purple-400">{{ last_login }}</span>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Products Grid -->
+    {% if not products_list %}
+      <div class="flex flex-col items-center justify-center text-center 
+                  backdrop-blur-lg bg-white/5 border border-purple-600/20 rounded-2xl p-12 shadow-xl">
+        <div class="w-32 h-32 mx-auto mb-6 opacity-80">
+          <img src="{% static 'image/no-products.png' %}" alt="No products available" 
+               class="w-full h-full object-contain">
+        </div>
+        <h3 class="text-xl sm:text-2xl font-semibold text-purple-400 mb-3">No products found</h3>
+        <p class="text-gray-400 mb-8 max-w-md">
+          Be the first to add products to Offside’s futuristic collection.
+        </p>
+        <a href="{% url 'main:create_products' %}" 
+           class="inline-flex items-center px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold 
+                  hover:bg-purple-500 transition-all duration-300 hover:shadow-[0_0_20px_rgba(168,85,247,0.6)]">
+          + Add Product
+        </a>
+      </div>
+    {% else %}
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-10 pb-10">
+        {% for products in products_list %}
+          {% include 'card_products.html' with products=products %}
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+</div>
 {% endblock content %}

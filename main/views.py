@@ -13,7 +13,7 @@ from main.models import Products
 
 @login_required(login_url='/login')
 def show_main(request):
-    filter_type = request.GET.get("filter", "all")  # default 'all'
+    filter_type = request.GET.get("filter", "all")
 
     if filter_type == "all":
         products_list = Products.objects.all()
@@ -21,26 +21,29 @@ def show_main(request):
         products_list = Products.objects.filter(user=request.user)
 
     context = {
-        'app'           : 'Offside!',
-        'name'          : request.user.username,
-        'class'         : 'PBP A',
-        'products_list' : products_list,
-        'last_login'    : request.COOKIES.get('last_login', 'Never')
+        'app': 'Offside!',
+        'name': request.user.username,
+        'npm' : '2406495930',
+        'class': 'PBP A',
+        'products_list': products_list,
+        'last_login': request.COOKIES.get('last_login', 'Never'),
+        'show_navbar': True,  # tampilkan navbar di halaman ini
     }
-    return render(request, "main.html",context)
+    return render(request, "main.html", context)
 
 @login_required(login_url='/login')
 def create_products(request):
     form = ProductsForm(request.POST or None)
 
     if form.is_valid() and request.method == 'POST':
-        products_entry = form.save(commit = False)
+        products_entry = form.save(commit=False)
         products_entry.user = request.user
         products_entry.save()
         return redirect('main:show_main')
 
     context = {
-        'form': form
+        'form': form,
+        'show_navbar': True,  # tampilkan navbar di halaman ini
     }
 
     return render(request, "create_products.html", context)
@@ -115,3 +118,21 @@ def logout_user(request):
     response = HttpResponseRedirect(reverse('main:login'))
     response.delete_cookie('last_login')
     return response
+
+def edit_products(request, id):
+    products = get_object_or_404(Products, pk=id)
+    form = ProductsForm(request.POST or None, instance=products)
+    if form.is_valid() and request.method == 'POST':
+        form.save()
+        return redirect('main:show_main')
+
+    context = {
+        'form': form
+    }
+
+    return render(request, "edit_products.html", context)
+
+def delete_products(request, id):
+    products = get_object_or_404(Products, pk=id)
+    products.delete()
+    return HttpResponseRedirect(reverse('main:show_main'))

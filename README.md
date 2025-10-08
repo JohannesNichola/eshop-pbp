@@ -117,3 +117,56 @@ Aplikasi sudah di-deploy di PWS, dapat diakses melalui:
     3. Menyimpan dan menampilkan data last_login menggunakan cookies dengan import datetime, HttpResponseRedirect dan reverse. Kemudian, ketika login berhasil, maka cookie akan ditambahkan dengan last_login adalah waktu saat terakhir kali login. Ketika logout, cookie akan dihapus dengan code response.delete_cookie('last_login')
     4. Menghubungkan model dengan user dengan import User di models.py dan menambahkan field user di model (user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)). Kemudian, dilakukan beberapa modifikasi code untuk fungsi create_products dan filter produk berdasarkan user di show_main beserta tombol filternya di main.html.
     5. Terakhir, menampilkan Author di halaman detail dengan penambahan code di products_detail.html.
+
+## TUGAS 5
+## Implementasi Checklist Step-by-Step
+
+1. **Urutan Prioritas Pengambilan CSS Selector dari yang Tertinggi**
+    1. Inline Style
+        - langsung ditulis di tag HTML
+    2. ID Selctor (#id)
+        - hanya menargetkan elemen dengan atribut id tertentu (#iniTarget{...})
+    3. Pseudo-class Selector (:hover, dll)
+        - menargetkan elemen yang sedang dalam keadaan tertentu (button:hover {...} -> button saat kursar berada di atas button)
+    4. Attribute Selector ([attribute="value"])
+        - menargetkan elemen yang memiliki atribut tertentu (input[type="text"]{...})
+    5. Class Selector (.class)
+        - menargetkan elemen yang memiliki atribut class (.card-style {...})
+    6. Type Selector
+        - menargetkan elemen HTML tertentu (h1 {...})
+    7. Universal Selector (*)
+        - menargetkan semua elemen di halaman (* {...})
+
+2. **Pentingnya Responsive Design dan Contoh Aplikasinya**
+    Responsive Design sangat penting dan diperlukan karena konsep ini memastikan tampilan aplikasi menyesuaikan ukuran layar baik desktop maupun mobile, sehingga pengguna dapat menggunakan aplikasi dengan nyaman melalui perangkat apapun. Tanpa adanya responsive design, layout aplikasi akan rusak/tidak nyaman untuk dilihat saat ukuran/device yang digunakan berbeda. Sebagai contoh, aplikasi dari proyek ini awalnya tidak menggunakan responsive design, sehingga elemen yang tadinya terlihat rapi di web, menjadi tumpang tindih saat dibuka melalui perangkat mobile. Namun, ketika sudah menggunakan responsive design, meskipun ada perbedaan tampilan antara web dengan mobile, perbedaan itulah yang membuat layout sesuai dengan perangkat maupun ukuran. Dalam konteks ini, pada ukuran tertentu/perangkat mobile, elemen pada navbar dimasukkan ke dalam icon hamburger (menu).
+
+3. **Perbedaan Antara Margin, Border, dan Padding, serta Cara Pengimplementasiannya**
+    1. Margin  : ruang di luar elemen yang memisahkan elemen satu dengan yang lain.
+    2. Border  : garis di tepi elemen yang membungkus konten dan padding.
+    3. Padding : ruang di dalam elemen yang memisahkan atara konten dengan border.
+    Cara Implementasi : (contoh)
+        div {
+            margin  : 20px;
+            border  : 5px solid black;
+            padding : 10px;
+        }
+
+4. **Flex Box dan Grid Layout**
+    1. Flex Box
+        - Sistem pengaturan tata letak (layout) satu dimensi yang digunakan untuk meyusun elemen secara fleksibel dalam satu baris atau kolom sehingga memudahkan perancangan struktur layout responsif yang fleksibel. 
+        - Biasa digunakan untuk membuat navbar, tombol, dan card list
+
+    2. Grid Layout
+        - Sistem pengaturan tata letak (layout) dua dimensi yang digunakan untuk mengatur layout elemen sehingga dapat diposisikan ke dalam baris dan kolom secara bersamaan. Tentu memudahkan dalam perancangan desain aplikasi yang kompleks dan responsif.
+        - Biasa digunakan untuk membuat semacam gallery, dashboard, atau dalam proyek ini product grid
+
+5. **Step-by-step melanjutkan proyek Django**
+    1. Menambahkan Tailwind ke Aplikasi
+    2. Menambahkan fitur Edit Products dengan menambahkan fungsi edit_products pada views.py, membuat file HTML edit_products.html, menambahkan path url dalam urlpatterns urls.py, dan menambahkan kode pada main.html untuk menampilkan fitur Edit Products.
+    3. Menambahkan fitur Delete Products dengan menambahkan fungsi delete_products pada views.py, menambahkan path url dalam urlpatterns urls.py, dan menambahkan kode pada main.html untuk menampilkan fitur Delete Products.
+    4. Menambahkan Navigation Bar pada Aplikasi.
+    5. Menambahkan global.CSS untuk styling Aplikasi dengan Tailwind, menghubungkannya ke base.html.
+    6. Styling navbar, halaman login, halaman register, halaman home, halaman detail products, halaman create products, dan halaman edit products menjadi unik, menarik, dan responsive.
+    7. Halaman detail produk akan menampilkan gambar dan pesan bahwa belum ada product yang terdaftar jika belum ada produk, dan jika sudah ada, akan menampilkan detail setiap product dengan menggunakan card.
+    8. Card Product sudah mengandung dua button, 1 untuk edit product dan 1 untuk delete product.
+    9. Mengubah navbar agar menjadi responsive terhadap perbedaan ukuran device terutama mobile dan desktop.
