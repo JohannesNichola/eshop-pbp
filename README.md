@@ -170,3 +170,20 @@ Aplikasi sudah di-deploy di PWS, dapat diakses melalui:
     7. Halaman detail produk akan menampilkan gambar dan pesan bahwa belum ada product yang terdaftar jika belum ada produk, dan jika sudah ada, akan menampilkan detail setiap product dengan menggunakan card.
     8. Card Product sudah mengandung dua button, 1 untuk edit product dan 1 untuk delete product.
     9. Mengubah navbar agar menjadi responsive terhadap perbedaan ukuran device terutama mobile dan desktop.
+
+## TUGAS 6
+
+1. **Perbedaan antara synchronous request dan asynchronous request**
+Synchronous request adalah permintaan yang dijalankan secara berurutan — browser akan menunggu server menyelesaikan permintaan dan mengirimkan respons sebelum pengguna bisa berinteraksi lagi dengan halaman. Sedangkan asynchronous request (seperti yang dilakukan dengan AJAX) berjalan di belakang layar tanpa harus me-reload halaman, sehingga pengguna tetap bisa berinteraksi dengan website sambil data sedang diproses.
+
+2. **Bagaimana AJAX bekerja di Django (alur request–response)**
+AJAX bekerja dengan cara mengirimkan permintaan ke URL Django (biasanya view yang didekorasi dengan @csrf_exempt dan @require_POST) menggunakan JavaScript, tanpa perlu memuat ulang halaman. Django kemudian memproses data tersebut di server, membuat respons (biasanya dalam format JSON), dan mengirimkannya kembali ke browser. JavaScript lalu menangani hasil respons tersebut untuk memperbarui tampilan halaman secara dinamis, misalnya menambahkan produk baru ke daftar tanpa reload.
+
+3. **Keuntungan menggunakan AJAX dibandingkan render biasa di Django**
+Keuntungan utama AJAX adalah pengalaman pengguna yang lebih cepat dan interaktif. Karena AJAX tidak perlu me-reload seluruh halaman, hanya data tertentu saja yang diambil atau diubah, sehingga penggunaan bandwidth lebih efisien dan tampilan terasa lebih responsif. Selain itu, AJAX membuat aplikasi terasa seperti “real-time”, misalnya saat menambah produk langsung muncul di daftar tanpa harus berpindah halaman.
+
+4. **Cara memastikan keamanan saat menggunakan AJAX untuk fitur Login dan Register di Django**
+Untuk menjaga keamanan saat menggunakan AJAX pada login dan register, penting untuk tetap menggunakan token CSRF yang disediakan Django agar permintaan hanya bisa datang dari situs yang sah. Selain itu, data yang dikirim dari client perlu divalidasi di server menggunakan form Django, dan setiap respons sensitif (seperti data user) tidak boleh dikirimkan secara terbuka. Django juga sudah memiliki sistem autentikasi bawaan yang bisa tetap digunakan meski request-nya dikirim lewat AJAX.
+
+5. **Pengaruh AJAX terhadap pengalaman pengguna (User Experience)**
+AJAX membuat pengalaman pengguna jadi jauh lebih halus dan cepat karena tidak perlu menunggu halaman direfresh setiap kali ada interaksi. Pengguna bisa menambah, mengedit, atau menghapus data tanpa kehilangan posisi di halaman. Dengan tampilan yang langsung diperbarui dan adanya elemen seperti toast notification atau modal interaktif, website terasa lebih modern dan nyaman digunakan, mirip seperti aplikasi native.

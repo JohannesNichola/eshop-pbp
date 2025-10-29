@@ -6,6 +6,7 @@
 {% endblock meta %}
 
 {% block content %}
+{% include 'navbar.html' %}
 
 <div class="bg-gradient-to-b from-[#0a0a0f] to-[#1a001f] w-full pt-16 min-h-screen text-gray-100">
   <div class="max-w-7xl mx-auto px-6 lg:px-10 py-10">
@@ -24,26 +25,18 @@
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-10 
                 backdrop-blur-lg bg-white/5 border border-purple-600/20 rounded-xl p-5 shadow-lg">
       <div class="flex flex-wrap justify-center sm:justify-start space-x-3 mb-4 sm:mb-0">
-        <a href="?" 
-           class="{% if request.GET.filter == 'all' or not request.GET.filter  %} 
-                    bg-purple-600 text-white shadow-[0_0_15px_rgba(168,85,247,0.6)] 
-                  {% else %}
-                    bg-transparent text-gray-300 border border-purple-500/30
-                  {% endif %} 
-                  px-5 py-2 rounded-lg font-medium transition-all duration-300 
-                  hover:bg-purple-500 hover:text-white hover:shadow-[0_0_20px_rgba(168,85,247,0.7)]">
+        <button id="filter-all"
+                class="bg-purple-600 text-white shadow-[0_0_15px_rgba(168,85,247,0.6)] 
+                       px-5 py-2 rounded-lg font-medium transition-all duration-300 
+                       hover:bg-purple-500 hover:shadow-[0_0_20px_rgba(168,85,247,0.7)]">
           All Products
-        </a>
-        <a href="?filter=my" 
-           class="{% if request.GET.filter == 'my' %} 
-                    bg-purple-600 text-white shadow-[0_0_15px_rgba(168,85,247,0.6)] 
-                  {% else %}
-                    bg-transparent text-gray-300 border border-purple-500/30
-                  {% endif %}
-                  px-5 py-2 rounded-lg font-medium transition-all duration-300 
-                  hover:bg-purple-500 hover:text-white hover:shadow-[0_0_20px_rgba(168,85,247,0.7)]">
+        </button>
+        <button id="filter-my"
+                class="bg-transparent text-gray-300 border border-purple-500/30
+                       px-5 py-2 rounded-lg font-medium transition-all duration-300 
+                       hover:bg-purple-500 hover:text-white hover:shadow-[0_0_20px_rgba(168,85,247,0.7)]">
           My Products
-        </a>
+        </button>
       </div>
       {% if user.is_authenticated %}
         <div class="text-sm text-gray-400 italic text-center sm:text-right">
@@ -52,31 +45,254 @@
       {% endif %}
     </div>
 
-    <!-- Products Grid -->
-    {% if not products_list %}
-      <div class="flex flex-col items-center justify-center text-center 
-                  backdrop-blur-lg bg-white/5 border border-purple-600/20 rounded-2xl p-12 shadow-xl">
-        <div class="w-32 h-32 mx-auto mb-6 opacity-80">
-          <img src="{% static 'image/no-products.png' %}" alt="No products available" 
-               class="w-full h-full object-contain">
-        </div>
-        <h3 class="text-xl sm:text-2xl font-semibold text-purple-400 mb-3">No products found</h3>
-        <p class="text-gray-400 mb-8 max-w-md">
-          Be the first to add products to Offside’s futuristic collection.
-        </p>
-        <a href="{% url 'main:create_products' %}" 
-           class="inline-flex items-center px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold 
-                  hover:bg-purple-500 transition-all duration-300 hover:shadow-[0_0_20px_rgba(168,85,247,0.6)]">
-          + Add Product
-        </a>
+    <!-- Button to open modal -->
+    <button onclick="showModal()" 
+            class="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white font-semibold rounded-md hover:bg-purple-500 transition-all mb-6 shadow-[0_0_15px_rgba(168,85,247,0.4)]">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 010 2h-3v3a1 1 0 01-2 0v-3H6a1 1 0 010-2h3V6a1 1 0 011-1z" clip-rule="evenodd"/>
+      </svg>
+      Add Product
+    </button>
+
+    <!-- LOADING STATE -->
+    <div id="loading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 animate-pulse">
+      {% for i in "123456" %}
+      <div class="bg-white/5 border border-purple-600/10 rounded-2xl p-5 space-y-4">
+        <div class="w-full h-48 bg-gray-700/50 rounded-lg"></div>
+        <div class="h-6 bg-gray-700/50 rounded w-3/4"></div>
+        <div class="h-4 bg-gray-700/50 rounded w-1/2"></div>
+        <div class="h-10 bg-gray-700/50 rounded-lg"></div>
       </div>
-    {% else %}
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-10 pb-10">
-        {% for products in products_list %}
-          {% include 'card_products.html' with products=products %}
-        {% endfor %}
+      {% endfor %}
+    </div>
+
+    <!-- ERROR STATE -->
+    <div id="error" class="hidden flex flex-col items-center justify-center text-center 
+                backdrop-blur-lg bg-red-900/20 border border-red-600/40 
+                rounded-2xl p-10 shadow-xl animate-fadeIn">
+      <div class="text-6xl mb-4">⚠️</div>
+      <h3 class="text-2xl font-semibold text-red-400 mb-3">Oops! Something went wrong</h3>
+      <p class="text-gray-300 mb-6">Failed to load products.</p>
+      <button onclick="window.location.reload()" 
+              class="px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold 
+                     hover:bg-purple-500 transition-all duration-300">
+        Try Again
+      </button>
+    </div>
+
+    <!-- EMPTY STATE -->
+    <div id="empty" class="hidden flex flex-col items-center justify-center text-center 
+                    backdrop-blur-lg bg-white/5 border border-purple-600/20 rounded-2xl p-12 shadow-xl animate-fadeIn">
+      <div class="w-32 h-32 mx-auto mb-6 opacity-80">
+        <img src="{% static 'image/no-products.png' %}" alt="No products available" 
+             class="w-full h-full object-contain">
       </div>
-    {% endif %}
+      <h3 class="text-xl sm:text-2xl font-semibold text-purple-400 mb-3">No products found</h3>
+      <p class="text-gray-400 mb-8 max-w-md">
+        Be the first to add products to Offside’s futuristic collection.
+      </p>
+      <!-- <a href="{% url 'main:create_products' %}" 
+         class="inline-flex items-center px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold 
+                hover:bg-purple-500 transition-all duration-300 hover:shadow-[0_0_20px_rgba(168,85,247,0.6)]">
+        + Add Product
+      </a> -->
+    </div>
+
+    <!-- PRODUCTS GRID -->
+    <div id="grid" class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 pb-10 animate-fadeIn"></div>
   </div>
 </div>
+
+<script>
+// ==============================
+// CONFIGURATION
+// ==============================
+const PRODUCTS_API_ENDPOINT = "{% url 'main:show_json' %}";
+const CURRENT_USER_ID = "{{ user.id|default_if_none:'' }}";
+
+// ==============================
+// DOM ELEMENTS
+// ==============================
+const loadingSpinner = document.getElementById('loading');
+const errorMessage = document.getElementById('error');
+const emptyStateDisplay = document.getElementById('empty');
+const productsGridContainer = document.getElementById('grid');
+const showAllProductsButton = document.getElementById('filter-all');
+const showMyProductsButton = document.getElementById('filter-my');
+
+// ==============================
+// STATE VARIABLES
+// ==============================
+let activeFilter = 'all';
+let allProductsData = [];
+
+// ==============================
+// UI UPDATE FUNCTIONS
+// ==============================
+
+function updateFilterButtonsAppearance() {
+  if (activeFilter === 'all') {
+    showAllProductsButton.classList.add('bg-purple-600', 'text-white');
+    showMyProductsButton.classList.remove('bg-purple-600', 'text-white');
+  } else {
+    showMyProductsButton.classList.add('bg-purple-600', 'text-white');
+    showAllProductsButton.classList.remove('bg-purple-600', 'text-white');
+  }
+}
+
+function displayPageSection({ showLoading = false, showError = false, showEmpty = false, showGrid = false }) {
+  loadingSpinner.classList.toggle('hidden', !showLoading);
+  errorMessage.classList.toggle('hidden', !showError);
+  emptyStateDisplay.classList.toggle('hidden', !showEmpty);
+  productsGridContainer.classList.toggle('hidden', !showGrid);
+}
+
+// ==============================
+// CARD BUILDER
+// ==============================
+
+function buildProductCardElement(product) {
+  const articleElement = document.createElement('article');
+  articleElement.className = `
+    bg-white/5 backdrop-blur-md rounded-2xl border border-purple-600/20 
+    hover:border-purple-500/50 hover:shadow-[0_0_20px_rgba(168,85,247,0.4)] 
+    transition-all duration-300 overflow-hidden flex flex-col h-full
+  `;
+
+  // Sanitize semua data yang berasal dari backend
+  const name = DOMPurify.sanitize(product.name);
+  const price = DOMPurify.sanitize(product.price);
+  const category = DOMPurify.sanitize(product.category || 'General');
+  const thumbnail = DOMPurify.sanitize(product.thumbnail);
+  const views = DOMPurify.sanitize(product.products_views);
+  const userId = DOMPurify.sanitize(product.user_id);
+
+  const detailLink = `/products/${DOMPurify.sanitize(product.id)}/`;
+  const editLink = `/products/${DOMPurify.sanitize(product.id)}/edit`;
+  const deleteLink = `/products/${DOMPurify.sanitize(product.id)}/delete`;
+
+  const isFeatured = product.is_featured;
+  const isHot = product.products_views > 20;
+
+  const thumbnailHtml = product.thumbnail
+    ? `<img src="${thumbnail}" alt="${name}" class="w-full h-full object-cover">`
+    : `<div class="w-full h-full bg-gradient-to-br from-purple-900/30 to-purple-700/20 flex items-center justify-center text-purple-400 text-sm">No Image</div>`;
+
+  const featuredBadge = isFeatured
+    ? `<span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-purple-200/30 text-purple-300 border border-purple-400/20">Featured</span>`
+    : '';
+
+  const hotBadge = isHot
+    ? `<span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-pink-600/30 text-pink-300 border border-pink-400/20">Hot</span>`
+    : '';
+
+  const editDeleteButtons =
+    CURRENT_USER_ID && Number(CURRENT_USER_ID) === Number(userId)
+      ? `<div class="flex space-x-3 text-sm">
+          <a href="${editLink}" class="text-purple-300 hover:text-purple-400 transition-all">Edit</a>
+          <a href="${deleteLink}" class="text-red-400 hover:text-red-500 transition-all" onclick="return confirm('Delete this product?')">Delete</a>
+        </div>`
+      : '';
+
+  // Bangun elemen HTML dengan konten yang sudah aman
+  const safeHtml = `
+    <div class="aspect-[16/9] relative overflow-hidden">
+      ${thumbnailHtml}
+      <div class="absolute top-3 left-3">
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-purple-600 text-white shadow-md">${category}</span>
+      </div>
+      <div class="absolute top-3 right-3 flex space-x-2">
+        ${featuredBadge}
+        ${hotBadge}
+      </div>
+    </div>
+    <div class="p-5 flex flex-col flex-1">
+      <div class="flex items-center text-sm text-gray-400 mb-3">
+        <span>${views} views</span>
+      </div>
+      <h3 class="text-lg font-semibold text-purple-300 mb-3 line-clamp-2 leading-tight">
+        <a href="${detailLink}" class="hover:text-purple-400 transition-colors">${name}</a>
+      </h3>
+      <p class="text-gray-400 text-sm leading-relaxed line-clamp-3 mb-4">Rp ${price}</p>
+      <div class="pt-4 border-t border-purple-600/20 flex items-center justify-between">
+        <a href="${detailLink}" class="text-purple-400 hover:text-purple-300 font-medium text-sm transition-all">View Detail</a>
+        ${editDeleteButtons}
+      </div>
+    </div>
+  `;
+
+  articleElement.innerHTML = DOMPurify.sanitize(safeHtml);
+  return articleElement;
+}
+
+// ==============================
+// MAIN LOGIC
+// ==============================
+
+function renderAllProductCards(products) {
+  productsGridContainer.innerHTML = '';
+  products.forEach(product => {
+    const card = buildProductCardElement(product);
+    productsGridContainer.appendChild(card);
+  });
+}
+
+function filterAndDisplayProducts() {
+  updateFilterButtonsAppearance();
+
+  const filteredProducts = activeFilter === 'all'
+    ? allProductsData
+    : allProductsData.filter(p => Number(p.user_id) === Number(CURRENT_USER_ID));
+
+  if (filteredProducts.length === 0) {
+    displayPageSection({ showEmpty: true });
+  } else {
+    renderAllProductCards(filteredProducts);
+    displayPageSection({ showGrid: true });
+  }
+}
+
+async function fetchProductsFromServer() {
+  try {
+    displayPageSection({ showLoading: true });
+
+    const response = await fetch(PRODUCTS_API_ENDPOINT, {
+      headers: { 'Accept': 'application/json' },
+    });
+
+    if (!response.ok) throw new Error('Failed to fetch products data');
+
+    const productsData = await response.json();
+    allProductsData = productsData || [];
+    filterAndDisplayProducts();
+
+  } catch (error) {
+    console.error('Error loading products:', error);
+    displayPageSection({ showError: true });
+  }
+}
+
+// ==============================
+// EVENT HANDLERS
+// ==============================
+showAllProductsButton.addEventListener('click', () => {
+  activeFilter = 'all';
+  filterAndDisplayProducts();
+});
+showMyProductsButton.addEventListener('click', () => {
+  activeFilter = 'my';
+  filterAndDisplayProducts();
+});
+
+// ==============================
+// INITIALIZE PAGE
+// ==============================
+fetchProductsFromServer();
+
+// 🔮 Event listener: refresh product list when new product added
+document.addEventListener('productAdded', function() {
+    fetchProductsFromServer();
+});
+</script>
+
 {% endblock content %}

@@ -2,97 +2,168 @@
 {% load static %}
 
 {% block meta %}
-<title>{{ products.name }} - Offside!</title>
+<title>Product Detail - Offside!</title>
 {% endblock meta %}
 
 {% block content %}
 <div class="bg-gradient-to-b from-[#0a0a0f] to-[#1a001f] w-full min-h-screen text-gray-100 py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-6xl mx-auto">
+  <div class="max-w-6xl mx-auto">
 
-        <!-- Back Navigation -->
-        <div class="mb-8">
-            <a href="{% url 'main:show_main' %}" 
-               class="text-purple-400 hover:text-purple-300 font-medium transition-all duration-300">
-                ← Back to Products
-            </a>
-        </div>
-
-        <!-- Product Card -->
-        <article class="backdrop-blur-xl bg-white/5 border border-purple-600/30 rounded-2xl shadow-[0_0_30px_rgba(168,85,247,0.2)] overflow-hidden">
-
-            <!-- Header -->
-            <div class="p-8 border-b border-purple-600/20">
-                <div class="flex flex-wrap items-center gap-3 mb-4">
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-purple-600 text-white shadow-[0_0_10px_rgba(168,85,247,0.6)]">
-                        {{ products.category }}
-                    </span>
-                    {% if products.is_featured %}
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-yellow-500/20 text-yellow-300 border border-yellow-400/30">
-                            ★ Featured
-                        </span>
-                    {% endif %}
-                </div>
-
-                <h1 class="text-4xl font-extrabold text-purple-300 drop-shadow-md mb-3 leading-tight">
-                    {{ products.name }}
-                </h1>
-
-                <div class="flex flex-wrap items-center text-sm text-gray-400 gap-5">
-                    <span class="font-semibold text-purple-400">Rp {{ products.price }}</span>
-                    <span class="text-gray-500">{{ products.products_views }} views</span>
-                </div>
-            </div>
-
-            <!-- Product Image -->
-            {% if products.thumbnail %}
-                <div class="px-8 py-6">
-                    <img src="{{ products.thumbnail }}" 
-                         alt="{{ products.name }}" 
-                         class="w-full h-72 sm:h-96 object-cover rounded-xl border border-purple-600/20 shadow-[0_0_25px_rgba(168,85,247,0.15)]">
-                </div>
-            {% else %}
-                <div class="px-8 py-6">
-                    <img src="{% static 'image/no-products.png' %}" 
-                         alt="No image available" 
-                         class="w-full h-72 sm:h-96 object-cover rounded-xl opacity-70 border border-purple-600/20">
-                </div>
-            {% endif %}
-
-            <!-- Description -->
-            <div class="px-8 pb-10">
-                <h2 class="text-lg font-semibold text-purple-400 mb-3">Description</h2>
-                <div class="text-gray-300 leading-relaxed whitespace-pre-line text-base sm:text-lg">
-                    {{ products.description }}
-                </div>
-            </div>
-
-            <!-- Author / Seller Info -->
-            <div class="border-t border-purple-600/20 bg-white/5 px-8 py-6 rounded-b-2xl flex items-center justify-between">
-                <div>
-                    <p class="font-semibold text-purple-300">
-                        {% if products.user %}
-                            Seller: {{ products.user.username }}
-                        {% else %}
-                            Seller: Anonymous
-                        {% endif %}
-                    </p>
-                    <p class="text-sm text-gray-500">Products owner</p>
-                </div>
-
-                {% if user.is_authenticated and products.user == user %}
-                    <div class="flex gap-4">
-                        <a href="{% url 'main:edit_products' products.id %}" 
-                           class="text-purple-400 hover:text-purple-300 font-medium text-sm transition-all">
-                            ✎ Edit
-                        </a>
-                        <a href="{% url 'main:delete_products' products.id %}" 
-                           class="text-red-400 hover:text-red-300 font-medium text-sm transition-all">
-                            🗑 Delete
-                        </a>
-                    </div>
-                {% endif %}
-            </div>
-        </article>
+    <!-- Back Navigation -->
+    <div class="mb-8">
+      <a href="{% url 'main:show_main' %}" 
+         class="text-purple-400 hover:text-purple-300 font-medium transition-all duration-300">
+         ← Back to Products
+      </a>
     </div>
+
+    <!-- Loading State -->
+    <div id="loading-state" class="backdrop-blur-xl bg-white/5 border border-purple-600/30 rounded-2xl p-16 text-center shadow-[0_0_25px_rgba(168,85,247,0.3)]">
+      <svg class="animate-spin h-10 w-10 text-purple-500 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+      </svg>
+      <p class="text-purple-300 text-lg font-medium">Loading product details...</p>
+    </div>
+
+    <!-- Error State -->
+    <div id="error-state" class="hidden backdrop-blur-xl bg-white/5 border border-purple-600/30 rounded-2xl p-16 text-center shadow-[0_0_25px_rgba(168,85,247,0.3)]">
+      <div class="text-red-400 text-6xl mb-3">⚠️</div>
+      <h3 class="text-xl font-semibold text-purple-200 mb-2">Failed to load product</h3>
+      <p class="text-gray-400 mb-6">Please try again later or refresh the page.</p>
+      <button onclick="window.location.reload()" 
+              class="px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-lg font-medium transition-all duration-300">
+        Reload
+      </button>
+    </div>
+
+    <!-- Product Detail -->
+    <article id="product-detail" class="hidden backdrop-blur-xl bg-white/5 border border-purple-600/30 rounded-2xl shadow-[0_0_30px_rgba(168,85,247,0.2)] overflow-hidden">
+
+      <!-- Header -->
+      <div class="p-8 border-b border-purple-600/20">
+        <div id="product-badges" class="flex flex-wrap items-center gap-3 mb-4"></div>
+
+        <h1 id="product-name" class="text-4xl font-extrabold text-purple-300 drop-shadow-md mb-3 leading-tight"></h1>
+
+        <div class="flex flex-wrap items-center text-sm text-gray-400 gap-5">
+          <span id="product-price" class="font-semibold text-purple-400"></span>
+          <span id="product-views" class="text-gray-500"></span>
+        </div>
+      </div>
+
+      <!-- Product Image -->
+      <div class="px-8 py-6">
+        <img id="product-thumbnail" 
+             src="{% static 'image/no-products.png' %}" 
+             alt="Product image"
+             class="w-full h-72 sm:h-96 object-cover rounded-xl border border-purple-600/20 shadow-[0_0_25px_rgba(168,85,247,0.15)]">
+      </div>
+
+      <!-- Description -->
+      <div class="px-8 pb-10">
+        <h2 class="text-lg font-semibold text-purple-400 mb-3">Description</h2>
+        <div id="product-description" class="text-gray-300 leading-relaxed whitespace-pre-line text-base sm:text-lg"></div>
+      </div>
+
+      <!-- Seller Info -->
+      <div class="border-t border-purple-600/20 bg-white/5 px-8 py-6 rounded-b-2xl flex items-center justify-between">
+        <div>
+          <p id="product-seller" class="font-semibold text-purple-300">Seller: Loading...</p>
+          <p class="text-sm text-gray-500">Product owner</p>
+        </div>
+        <div id="edit-delete-buttons" class="hidden flex gap-4">
+          <a id="edit-link" href="#" class="text-purple-400 hover:text-purple-300 font-medium text-sm transition-all">✎ Edit</a>
+          <a id="delete-link" href="#" class="text-red-400 hover:text-red-300 font-medium text-sm transition-all">🗑 Delete</a>
+        </div>
+      </div>
+    </article>
+  </div>
 </div>
+
+<script>
+// ======================================
+// CONFIGURATION
+// ======================================
+const PRODUCT_ID = "{{ products.id }}";
+const PRODUCT_DETAIL_ENDPOINT = `{% url 'main:show_json_by_id' 0 %}`.replace('0', PRODUCT_ID);
+const CURRENT_USER_ID = "{{ user.id|default_if_none:'' }}";
+
+// ======================================
+// DOM ELEMENTS
+// ======================================
+const loadingState = document.getElementById('loading-state');
+const errorState = document.getElementById('error-state');
+const productDetail = document.getElementById('product-detail');
+const productName = document.getElementById('product-name');
+const productPrice = document.getElementById('product-price');
+const productDescription = document.getElementById('product-description');
+const productViews = document.getElementById('product-views');
+const productSeller = document.getElementById('product-seller');
+const productBadges = document.getElementById('product-badges');
+const productThumbnail = document.getElementById('product-thumbnail');
+const editButtons = document.getElementById('edit-delete-buttons');
+
+// ======================================
+// STATE CONTROL
+// ======================================
+function showState(state) {
+  loadingState.classList.toggle('hidden', state !== 'loading');
+  errorState.classList.toggle('hidden', state !== 'error');
+  productDetail.classList.toggle('hidden', state !== 'ready');
+}
+
+// ======================================
+// RENDER FUNCTION
+// ======================================
+function renderProduct(data) {
+  productName.textContent = data.name;
+  document.title = `${data.name} - Offside Product`;
+  productPrice.textContent = "Rp " + data.price.toLocaleString();
+  productDescription.textContent = data.description;
+  productViews.textContent = `${data.products_views} views`;
+  productSeller.textContent = "Seller: " + (data.user_username || "Anonymous");
+
+  // Badges
+  productBadges.innerHTML = `
+    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-purple-600 text-white shadow-[0_0_10px_rgba(168,85,247,0.6)]">${data.category}</span>
+    ${data.is_featured ? `<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-yellow-500/20 text-yellow-300 border border-yellow-400/30">★ Featured</span>` : ''}
+    ${data.products_views > 20 ? `<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-pink-600/30 text-pink-200 border border-pink-500/30">🔥 Popular</span>` : ''}
+  `;
+
+  // Thumbnail
+  productThumbnail.src = data.thumbnail || "{% static 'image/no-products.png' %}";
+  productThumbnail.alt = data.name;
+
+  // Edit/Delete access
+  if (CURRENT_USER_ID && Number(CURRENT_USER_ID) === Number(data.user_id)) {
+    editButtons.classList.remove('hidden');
+    editButtons.querySelector('#edit-link').href = `/edit-product/${data.id}/`;
+    editButtons.querySelector('#delete-link').href = `/delete-product/${data.id}/`;
+  }
+}
+
+// ======================================
+// FETCH FUNCTION
+// ======================================
+async function loadProductDetail() {
+  try {
+    showState('loading');
+    const response = await fetch(PRODUCT_DETAIL_ENDPOINT, { headers: { 'Accept': 'application/json' }});
+    if (!response.ok) throw new Error('Failed to fetch product detail');
+
+    const productData = await response.json();
+    renderProduct(productData);
+    showState('ready');
+  } catch (error) {
+    console.error('Error loading product:', error);
+    showState('error');
+  }
+}
+
+// ======================================
+// INITIALIZE
+// ======================================
+loadProductDetail();
+</script>
 {% endblock content %}
